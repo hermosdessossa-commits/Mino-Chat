@@ -98,6 +98,11 @@ export const reactionSchema = z.object({
   emoji: z.string().min(1).max(8),
 });
 
+export const searchUsersSchema = z.object({
+  q: z.string().min(1).max(100),
+  limit: z.number().int().min(1).max(50).default(20),
+});
+
 export const markReadSchema = z.object({
   messageIds: z.array(z.string().cuid()).min(1).max(100),
 });
@@ -141,6 +146,7 @@ export type UpdateParticipantRoleInput = z.infer<typeof updateParticipantRoleSch
 export type CreateMessageInput = z.infer<typeof createMessageSchema>;
 export type EditMessageInput = z.infer<typeof editMessageSchema>;
 export type MessageSearchInput = z.infer<typeof messageSearchSchema>;
+export type SearchUsersInput = z.infer<typeof searchUsersSchema>;
 export type ReactionInput = z.infer<typeof reactionSchema>;
 export type MarkReadInput = z.infer<typeof markReadSchema>;
 export type PaginationParams = z.infer<typeof paginationSchema>;

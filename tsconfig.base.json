@@ -21,7 +21,7 @@
       "@mino-chat/db/*": ["packages/db/src/*"],
       "@mino-chat/ui/*": ["packages/ui/src/*"]
     },
-    "types": ["node", "vitest/globals"]
+    "types": ["node"]
   },
   "exclude": ["node_modules", "dist", "build", ".turbo"]
 }

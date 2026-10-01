@@ -183,6 +183,7 @@ model Device {
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String
+  tokenId   String   @unique @db.VarChar(64)
   tokenHash String   @db.VarChar(255)
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -192,6 +193,7 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([tokenId])
   @@index([tokenHash])
   @@index([expiresAt])
   @@map("refresh_tokens")

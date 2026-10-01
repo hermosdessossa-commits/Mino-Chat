@@ -1,0 +1,62 @@
+# =============================================================================
+# Mino-Chat Worker - Multi-stage Dockerfile
+# =============================================================================
+
+# ---- Builder Stage ----
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+RUN corepack enable pnpm
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY turbo.json ./
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/db/package.json ./packages/db/
+COPY apps/server/package.json ./apps/server/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/shared/src ./packages/shared/src
+COPY packages/shared/tsconfig.json ./packages/shared/
+COPY packages/db/prisma ./packages/db/prisma
+COPY packages/db/src ./packages/db/src
+COPY packages/db/tsconfig.json ./packages/db/
+COPY apps/server/src ./apps/server/src
+COPY apps/server/tsconfig.json ./apps/server/
+
+RUN pnpm --filter=@mino-chat/db db:generate
+RUN pnpm --filter=@mino-chat/shared build
+RUN pnpm --filter=@mino-chat/db build
+RUN pnpm --filter=@mino-chat/server build
+
+# ---- Runner Stage ----
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN corepack enable pnpm
+
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/server/package.json ./apps/server/
+
+RUN pnpm install --frozen-lockfile --prod
+
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared/node_modules ./packages/shared/node_modules
+COPY --from=builder /app/packages/db/node_modules ./packages/db/node_modules
+
+RUN chown -R nodejs:nodejs /app
+
+USER nodejs
+
+CMD ["node", "apps/server/dist/worker.js"]
