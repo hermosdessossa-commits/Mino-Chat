@@ -1,0 +1,226 @@
+// =============================================================================
+// Mino-Chat Prisma Schema
+// Supabase-compatible with pgvector, pg_trgm, pgcrypto extensions
+// =============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+enum ParticipantRole {
+  ADMIN
+  MEMBER
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique @db.VarChar(254)
+  username      String   @unique @db.VarChar(30)
+  passwordHash  String   @db.VarChar(255)
+  avatarUrl     String?  @db.Text
+  role          UserRole @default(USER)
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  conversations ConversationParticipant[]
+  messages      Message[]
+  attachments   Attachment[]
+  devices       Device[]
+  refreshTokens RefreshToken[]
+  reactions     Reaction[]
+
+  @@index([email])
+  @@index([username])
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Conversation {
+  id          String             @id @default(cuid())
+  type        ConversationType   @default(DIRECT)
+  name        String?            @db.VarChar(100)
+  avatarUrl   String?            @db.Text
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([type])
+  @@index([updatedAt])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  userId         String
+  conversationId String
+  role           ParticipantRole @default(MEMBER)
+  joinedAt       DateTime @default(now())
+  lastReadAt     DateTime?
+  notifiedAt     DateTime?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+  @@index([userId])
+  @@index([conversationId])
+  @@index([conversationId, lastReadAt])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String      @db.Text
+  type           MessageType @default(TEXT)
+  replyToId      String?
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      Message?               @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies      Message[]              @relation("MessageReplies")
+  attachments  Attachment[]
+  reactions    Reaction[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+  @@index([conversationId, deletedAt])
+  @@index([replyToId])
+  @@map("messages")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  messageId String?
+  userId    String
+  filename  String   @db.VarChar(255)
+  mimeType  String   @db.VarChar(100)
+  size      Int
+  url       String   @db.Text
+  thumbnail String?  @db.Text
+  width     Int?
+  height    Int?
+  duration  Int?     // for audio/video in seconds
+  createdAt DateTime @default(now())
+
+  message Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([userId, createdAt])
+  @@map("attachments")
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String   @db.VarChar(8)
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
+  @@map("reactions")
+}
+
+model Device {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String   @db.VarChar(100)
+  pushToken String?  @db.Text
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([pushToken])
+  @@map("devices")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @db.VarChar(255)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  replacedByTokenId String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String   @db.VarChar(254)
+  tokenHash String   @db.VarChar(255)
+  nonce     String   @db.VarChar(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([tokenHash])
+  @@index([email])
+  @@index([expiresAt])
+  @@map("magic_link_tokens")
+}
+
+// =============================================================================
+// FULL-TEXT SEARCH (PostgreSQL)
+// Run via migration: CREATE EXTENSION IF NOT EXISTS pg_trgm;
+// =============================================================================
+
+// Message search vector - created via migration
+// ALTER TABLE "messages" ADD COLUMN "search_vector" tsvector
+// GENERATED ALWAYS AS (to_tsvector('french', "content")) STORED;
+// CREATE INDEX "messages_search_idx" ON "messages" USING GIN ("search_vector");
+
+// Conversation search - for finding conversations by participant names
+// Can be added via raw SQL in migration if needed

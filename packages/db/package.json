@@ -1,0 +1,32 @@
+{
+  "name": "@mino-chat/db",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/client.ts",
+  "types": "./src/client.ts",
+  "exports": {
+    ".": "./src/client.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:push": "prisma db push",
+    "clean": "rm -rf dist node_modules/.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0",
+    "@mino-chat/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.12.0"
+  }
+}
