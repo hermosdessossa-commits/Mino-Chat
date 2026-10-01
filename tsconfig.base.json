@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "baseUrl": ".",
+    "paths": {
+      "@mino-chat/shared/*": ["packages/shared/src/*"],
+      "@mino-chat/db/*": ["packages/db/src/*"],
+      "@mino-chat/ui/*": ["packages/ui/src/*"]
+    },
+    "types": ["node", "vitest/globals"]
+  },
+  "exclude": ["node_modules", "dist", "build", ".turbo"]
+}
