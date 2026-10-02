@@ -19,9 +19,6 @@ const usersRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get(
     '/users/search',
     {
-      schema: {
-        querystring: searchUsersQuerySchema,
-      },
       preHandler: [validateQuery(searchUsersQuerySchema)],
     },
     async (request, reply) => {
@@ -57,7 +54,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify) => {
         params: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'cuid' },
+            id: { type: 'string' },
           },
           required: ['id'],
         },

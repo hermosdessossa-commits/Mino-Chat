@@ -8,14 +8,14 @@ interface ConversationItemProps {
     type: 'DIRECT' | 'GROUP';
     name: string | null;
     avatarUrl: string | null;
-    participants: { user: { id: string; username: string; avatarUrl: string | null } }[];
+    participants: Array<{ user?: { id: string; username: string; avatarUrl: string | null } }>;
     lastMessage?: {
       id: string;
       content: string;
       senderId: string;
       createdAt: string;
     };
-    unreadCount: number;
+    unreadCount?: number;
   };
   isSelected: boolean;
   onClick: () => void;
@@ -24,10 +24,10 @@ interface ConversationItemProps {
 export function ConversationItem({ conversation, isSelected, onClick }: ConversationItemProps) {
   const isGroup = conversation.type === 'GROUP';
   const otherParticipant = conversation.participants.find(
-    (p) => p.user.id !== 'current-user-id'
+    (p) => p.user?.id !== 'current-user-id'
   );
-  const displayName = isGroup ? conversation.name : otherParticipant?.user.username || 'Unknown';
-  const displayAvatar = isGroup ? conversation.avatarUrl : otherParticipant?.user.avatarUrl;
+  const displayName = isGroup ? conversation.name : otherParticipant?.user?.username || 'Unknown';
+  const displayAvatar = isGroup ? conversation.avatarUrl : otherParticipant?.user?.avatarUrl;
 
   const lastMessageContent = conversation.lastMessage
     ? conversation.lastMessage.content.length > 50
@@ -47,7 +47,7 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
     >
 <Avatar
         src={(displayAvatar === null ? undefined : displayAvatar) as string | undefined}
-        name={displayName}
+        name={displayName ?? undefined}
         size="lg"
         status="online"
       />
@@ -67,9 +67,9 @@ export function ConversationItem({ conversation, isSelected, onClick }: Conversa
             {conversation.lastMessage?.senderId === 'current-user-id' ? 'Vous: ' : ''}
             {lastMessageContent}
           </p>
-          {conversation.unreadCount > 0 && (
+          {(conversation.unreadCount ?? 0) > 0 && (
             <span className="flex-shrink-0 h-5 min-w-5 rounded-full bg-primary-600 text-white text-xs font-medium flex items-center justify-center px-1.5">
-              {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
+              {(conversation.unreadCount ?? 0) > 99 ? '99+' : conversation.unreadCount}
             </span>
           )}
         </div>

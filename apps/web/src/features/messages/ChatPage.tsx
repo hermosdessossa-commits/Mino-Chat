@@ -1,17 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, Paperclip, Smile, MoreVertical, ArrowLeft, Loader2 } from 'lucide-react';
 import { useMessages, useSendMessage, useMarkRead } from './hooks/useMessages';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { ConversationHeader } from '../conversations/ConversationHeader';
-import { Button } from '@/shared/components/Button';
 
 export function ChatPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showInfo, setShowInfo] = React.useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_showInfo, _setShowInfo] = React.useState(false);
 
   const { data: messages, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessages(conversationId!);
   const sendMessage = useSendMessage();
@@ -26,9 +25,9 @@ export function ChatPage() {
     if (messages?.pages) {
       const lastPage = messages.pages[messages.pages.length - 1];
       if (lastPage?.data) {
-        const unreadMessages = lastPage.data.filter((m: any) => !m.readByCurrentUser);
+        const unreadMessages = lastPage.data.filter((m: { id: string; readByCurrentUser?: boolean }) => !m.readByCurrentUser);
         if (unreadMessages.length > 0) {
-          markRead.mutate({ messageIds: unreadMessages.map((m: any) => m.id) });
+          markRead.mutate({ messageIds: unreadMessages.map((m: { id: string; readByCurrentUser?: boolean }) => m.id) });
         }
       }
     }
@@ -51,7 +50,7 @@ export function ChatPage() {
       
       <div className="flex-1 overflow-hidden flex flex-col">
         <MessageList
-          messages={messages?.pages.flatMap((p: any) => p.data) || []}
+          messages={messages?.pages.flatMap((p) => p.data) ?? []}
           isLoading={isLoading}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}

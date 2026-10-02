@@ -104,7 +104,8 @@
   .avatar-xl { @apply avatar h-16 w-16 text-xl; }
 
   .scrollbar-thin {
-    @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-surface-300 dark:scrollbar-thumb-surface-600;
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.surface.300') transparent;
   }
 
   .link {

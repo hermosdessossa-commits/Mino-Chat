@@ -16,15 +16,30 @@ declare module 'fastify' {
 }
 
 const socketPlugin: FastifyPluginAsync = async (fastify) => {
-  // Redis clients for adapter
-  const pubClient = new Redis(env.REDIS_URL);
-  const subClient = new Redis(env.REDIS_URL);
+  // Redis clients for adapter (lazyConnect — we call .connect() explicitly)
+  let adapter: ReturnType<typeof createAdapter> | undefined;
+  let pubClient: Redis | undefined;
+  let subClient: Redis | undefined;
 
-  pubClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis pub client error'));
-  subClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis sub client error'));
+  try {
+    pubClient = new Redis(env.REDIS_URL, { lazyConnect: true });
+    subClient = new Redis(env.REDIS_URL, { lazyConnect: true });
 
-  await pubClient.connect();
-  await subClient.connect();
+    pubClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis pub client error'));
+    subClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis sub client error'));
+
+    await Promise.all([pubClient.connect(), subClient.connect()]);
+    adapter = createAdapter(pubClient, subClient);
+    fastify.log.info('Socket.io Redis adapter connected');
+  } catch (err) {
+    fastify.log.warn(
+      { err },
+      'Redis unavailable — Socket.io running without cross-instance adapter',
+    );
+    pubClient = undefined;
+    subClient = undefined;
+    adapter = undefined;
+  }
 
   // Initialize Socket.io
   const io = new SocketIOServer(fastify.server, {
@@ -33,7 +48,7 @@ const socketPlugin: FastifyPluginAsync = async (fastify) => {
       methods: ['GET', 'POST'],
       credentials: true,
     },
-    adapter: createAdapter(pubClient, subClient),
+    ...(adapter ? { adapter } : {}),
   });
 
   // Authentication middleware for Socket.io
@@ -98,8 +113,8 @@ const socketPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.addHook('onClose', async () => {
     await io.close();
-    await pubClient.quit();
-    await subClient.quit();
+    if (pubClient) await pubClient.quit().catch(() => undefined);
+    if (subClient) await subClient.quit().catch(() => undefined);
   });
 };
 

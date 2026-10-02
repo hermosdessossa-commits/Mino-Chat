@@ -7,9 +7,9 @@ interface UIState {
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   activeModal: string | null;
-  openModal: (modal: string, data?: any) => void;
+  openModal: (modal: string, data?: unknown) => void;
   closeModal: () => void;
-  modalData: any;
+  modalData: unknown;
   theme: 'light' | 'dark' | 'system';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
 }

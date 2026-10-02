@@ -1,4 +1,3 @@
-import { useParams } from 'react-router-dom';
 import { ArrowLeft, MoreVertical, Video, Phone, Search, Info } from 'lucide-react';
 import { Avatar } from '@/shared/components/Avatar';
 import { Dropdown } from '@/shared/components/Dropdown';
@@ -9,7 +8,7 @@ interface ConversationHeaderProps {
   onBack: () => void;
 }
 
-export function ConversationHeader({ conversationId, onBack }: ConversationHeaderProps) {
+export function ConversationHeader({ conversationId: _conversationId, onBack }: ConversationHeaderProps) {
   const isGroup = false;
   const name = isGroup ? 'Team Mino-Chat' : 'Alice';
   const avatarUrl = null;
@@ -48,12 +47,12 @@ export function ConversationHeader({ conversationId, onBack }: ConversationHeade
               </Button>
             }
             items={[
-              { label: 'Informations', icon: <Info className="h-4 w-4" />, onClick: () => {} },
-              { label: 'Rechercher', icon: <Search className="h-4 w-4" />, onClick: () => {} },
-              { label: 'Média, liens et docs', icon: <div className="h-4 w-4 bg-surface-200 rounded" />, onClick: () => {} },
+              { label: 'Informations', icon: <Info className="h-4 w-4" />, onClick: () => undefined },
+              { label: 'Rechercher', icon: <Search className="h-4 w-4" />, onClick: () => undefined },
+              { label: 'Média, liens et docs', icon: <div className="h-4 w-4 bg-surface-200 rounded" />, onClick: () => undefined },
               { divider: true },
-              { label: 'Notifications', icon: <Info className="h-4 w-4" />, onClick: () => {} },
-              { label: 'Bloquer', icon: <Info className="h-4 w-4" />, onClick: () => {}, danger: true },
+              { label: 'Notifications', icon: <Info className="h-4 w-4" />, onClick: () => undefined },
+              { label: 'Bloquer', icon: <Info className="h-4 w-4" />, onClick: () => undefined, danger: true },
             ]}
             align="right"
           />

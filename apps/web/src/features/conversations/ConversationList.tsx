@@ -7,20 +7,21 @@ interface ConversationListProps {
     type: 'DIRECT' | 'GROUP';
     name: string | null;
     avatarUrl: string | null;
-    participants: { user: { id: string; username: string; avatarUrl: string | null } }[];
+    participants: Array<{ user?: { id: string; username: string; avatarUrl: string | null } }>;
     lastMessage?: {
       id: string;
       content: string;
       senderId: string;
       createdAt: string;
     };
-    unreadCount: number;
+    unreadCount?: number;
   }>;
   onClose?: () => void;
 }
 
 export function ConversationList({ conversations, onClose }: ConversationListProps) {
-  const { user } = useAuth();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { user: _user } = useAuth();
 
   return (
     <div className="divide-y divide-surface-200 dark:divide-surface-700">
@@ -30,7 +31,7 @@ export function ConversationList({ conversations, onClose }: ConversationListPro
           conversation={{
             ...conversation,
             participants: conversation.participants.map((p) => ({
-              user: { ...p.user, id: p.user.id }
+              user: p.user ? { id: p.user.id, username: p.user.username, avatarUrl: p.user.avatarUrl } : undefined
             }))
           }}
           isSelected={false}

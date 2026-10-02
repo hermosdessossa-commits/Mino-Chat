@@ -7,7 +7,6 @@ import { SocketProvider } from './lib/socket';
 import { YjsProvider } from './lib/yjs';
 import { ThemeProvider } from './shared/providers/ThemeProvider';
 import { UIProvider } from './stores/uiStore';
-import { AppRoutes } from './routes';
 import './shared/styles/globals.css';
 
 const queryClient = new QueryClient({

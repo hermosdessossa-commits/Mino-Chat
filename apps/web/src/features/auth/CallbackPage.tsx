@@ -7,7 +7,7 @@ import { useAuth } from './hooks/useAuth';
 export function CallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { verifyMagicLink, status } = useAuth();
+  const { verifyMagicLink } = useAuth();
   const token = searchParams.get('token');
 
   useEffect(() => {

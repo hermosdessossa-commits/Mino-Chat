@@ -25,7 +25,7 @@ export function useUpload() {
             fileId: presigned.fileId,
           });
 
-          return { fileId: presigned.fileId, url: presigned.fileUrl, ...complete };
+          return { fileId: presigned.fileId, ...complete, url: complete.url ?? presigned.fileUrl };
         })
       );
       return results;

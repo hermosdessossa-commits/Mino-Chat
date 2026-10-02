@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Send, Paperclip, Smile, Image, FileText } from 'lucide-react';
+import { Send, Paperclip, Smile } from 'lucide-react';
 import { Button } from '@/shared/components/Button';
 import { cn } from '@mino-chat/shared/utils';
 import { useUpload } from '@/features/uploads/hooks/useUpload';

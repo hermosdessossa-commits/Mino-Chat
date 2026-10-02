@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useUIStore } from '@/stores/uiStore';
 
 interface ThemeContextType {

@@ -23,11 +23,15 @@ const s3Plugin: FastifyPluginAsync = async (fastify) => {
     region: env.S3_REGION,
   });
 
-  // Ensure bucket exists
-  const bucketExists = await s3Client.bucketExists(env.S3_BUCKET);
-  if (!bucketExists) {
-    await s3Client.makeBucket(env.S3_BUCKET, env.S3_REGION);
-    fastify.log.info(`Created bucket: ${env.S3_BUCKET}`);
+  // Ensure bucket exists (non-fatal if S3 is unreachable in dev)
+  try {
+    const bucketExists = await s3Client.bucketExists(env.S3_BUCKET);
+    if (!bucketExists) {
+      await s3Client.makeBucket(env.S3_BUCKET, env.S3_REGION);
+      fastify.log.info(`Created bucket: ${env.S3_BUCKET}`);
+    }
+  } catch (err) {
+    fastify.log.warn({ err }, 'S3 bucket check failed — uploads may not work');
   }
 
   fastify.decorate('s3', s3Client);

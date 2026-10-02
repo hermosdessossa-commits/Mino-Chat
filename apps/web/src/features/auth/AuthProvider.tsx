@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api, type User } from '@/lib/api';
 import { useAuthStore } from '../../stores/authStore';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   status: 'loading' | 'authenticated' | 'unauthenticated';
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
@@ -18,7 +19,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  const { setUser, setTokens, clearAuth, user } = useAuthStore();
+  const { setUser, clearAuth, user } = useAuthStore();
 
   const refresh = useCallback(async () => {
     try {

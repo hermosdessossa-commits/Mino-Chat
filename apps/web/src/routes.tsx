@@ -8,7 +8,7 @@ import { SettingsPage } from './features/settings/SettingsPage';
 import { useAuth } from './features/auth/hooks/useAuth';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, status } = useAuth();
+  const { status } = useAuth();
 
   if (status === 'loading') {
     return (

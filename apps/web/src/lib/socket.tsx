@@ -1,11 +1,13 @@
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { useAuthStore } from '@/stores/authStore';
 import { env } from './env';
-import type { SocketEvent, SocketMessageNew, SocketMessageEdited, SocketMessageDeleted, SocketMessageRead, SocketReactionAdded, SocketReactionRemoved, SocketTypingStart, SocketTypingStop, SocketPresenceUpdate } from '@mino-chat/shared';
-import { useEffect, useRef } from 'react';
-import { createContext, useContext, useEffect as useEffectHook, useState, ReactNode } from 'react';
+import type { SocketMessageNew, SocketMessageEdited, SocketMessageDeleted, SocketMessageRead, SocketReactionAdded, SocketReactionRemoved, SocketTypingStart, SocketTypingStop, SocketPresenceUpdate } from '@mino-chat/shared';
+import { useRef } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect as useEffectHook, useState } from 'react';
 
-type SocketEventMap = {
+interface SocketEventMap {
   'message:new': SocketMessageNew;
   'message:edited': SocketMessageEdited;
   'message:deleted': SocketMessageDeleted;
@@ -23,7 +25,7 @@ type SocketEventMap = {
   'participant:joined': { conversationId: string; participant: { userId: string; username: string; avatarUrl: string | null } };
   'participant:left': { conversationId: string; userId: string };
   'participant:role-changed': { conversationId: string; userId: string; role: 'ADMIN' | 'MEMBER' };
-};
+}
 
 interface Conversation {
   id: string;
@@ -34,7 +36,7 @@ interface Conversation {
 
 class SocketService {
   private socket: Socket | null = null;
-  private listeners: Map<string, Set<Function>> = new Map();
+  private listeners = new Map<string, Set<(data: never) => void>>();
 
   connect(token: string) {
     if (this.socket?.connected) return;
@@ -63,7 +65,7 @@ class SocketService {
     this.socket.onAny((eventName: string, ...args: unknown[]) => {
       const eventListeners = this.listeners.get(eventName);
       if (eventListeners) {
-        eventListeners.forEach((callback) => callback(...args));
+        eventListeners.forEach((callback) => (callback as (data: unknown) => void)(args[0]));
       }
     });
   }
@@ -101,7 +103,7 @@ class SocketService {
     this.listeners.get(event)?.delete(callback);
   }
 
-  getSocket() {
+  getSocket(): Socket | null {
     return this.socket;
   }
 }

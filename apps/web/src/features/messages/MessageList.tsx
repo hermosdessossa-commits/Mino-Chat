@@ -1,7 +1,6 @@
 import { useRef, useEffect, useCallback, Fragment } from 'react';
 import { Loader2 } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
-import { cn } from '@mino-chat/shared/utils';
 import { formatRelativeTime } from '@mino-chat/shared/utils';
 
 interface MessageListProps {
@@ -12,7 +11,7 @@ interface MessageListProps {
     content: string;
     type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
     createdAt: string;
-    sender: { id: string; username: string; avatarUrl: string | null };
+    sender?: { id: string; username: string; avatarUrl: string | null };
     attachments?: Array<{
       id: string;
       filename: string;
@@ -21,10 +20,11 @@ interface MessageListProps {
       thumbnail: string | null;
       width: number | null;
       height: number | null;
+      size?: number;
     }>;
-    reactions?: Array<{ emoji: string; count: number; userReacted: boolean }>;
-    replyTo?: { content: string; sender: { username: string } };
-    editedAt?: string;
+    reactions?: Array<{ emoji: string; count?: number; userReacted?: boolean }>;
+    replyTo?: { content: string; sender?: { username?: string } };
+    editedAt?: string | null;
   }>;
   isLoading: boolean;
   hasNextPage: boolean;
@@ -54,7 +54,7 @@ export function MessageList({
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) handleLoadMore();
+        if (entries[0]?.isIntersecting) handleLoadMore();
       },
       { rootMargin: '100px' }
     );
@@ -78,7 +78,7 @@ export function MessageList({
     );
   }
 
-  const allMessages = messages?.pages.flatMap((p: any) => p.data) || [];
+  const allMessages = messages;
   
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin" style={{ scrollBehavior: 'smooth' }}>
@@ -88,7 +88,7 @@ export function MessageList({
       
       {allMessages.map((message, index) => {
         const showDate = index === 0 || 
-          new Date(allMessages[index - 1].createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+          new Date(allMessages[index - 1]!.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
         
         return (
           <Fragment key={message.id}>

@@ -217,6 +217,7 @@ export interface Conversation {
   updatedAt: string;
   participants: ConversationParticipant[];
   lastMessage?: Message;
+  unreadCount?: number;
 }
 
 export interface ConversationParticipant {

@@ -1,4 +1,3 @@
-import { useEffect, useRef, useCallback } from 'react';
 import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { WebsocketProvider } from 'y-websocket';
@@ -57,11 +56,11 @@ export class YjsManager {
   public doc: Y.Doc;
   private indexeddbProvider: IndexeddbPersistence | null = null;
   private websocketProvider: WebsocketProvider | null = null;
-  private awareness: any;
+  private awareness: { setLocalStateField: (field: string, value: unknown) => void } | null = null;
 
   private conversationsMap: Y.Map<YConversation>;
   private usersMap: Y.Map<YUser>;
-  private messagesArrays: Map<string, Y.Array<YMessage>> = new Map();
+  private messagesArrays = new Map<string, Y.Array<YMessage>>();
 
   constructor() {
     this.doc = new Y.Doc();
@@ -142,20 +141,23 @@ export class YjsManager {
     return tempId;
   }
 
-  onServerMessageConfirmed(tempId: string, serverMessage: any) {
+  onServerMessageConfirmed(tempId: string, serverMessage: { id: string; content: string; conversationId: string; senderId: string; type?: string; attachments?: unknown[]; createdAt?: string }) {
     const messages = this.getMessages(serverMessage.conversationId);
     const index = messages.toArray().findIndex((m) => m.tempId === tempId);
     if (index >= 0) {
       messages.delete(index, 1);
       messages.insert(index, [{
         ...serverMessage,
+        type: (serverMessage.type ?? 'text') as YMessage['type'],
+        attachments: (serverMessage.attachments ?? []) as YAttachment[],
+        createdAt: Date.now(),
         pending: false,
         synced: true,
       }]);
     }
   }
 
-  private flushPendingMutations() {
+  private flushPendingMutations() { // eslint-disable-next-line @typescript-eslint/no-empty-function
   }
 
   upsertConversation(conversation: YConversation) {
@@ -192,7 +194,7 @@ export class YjsManager {
 
 export const yjsManager = new YjsManager();
 
-import { createContext, useContext, useEffect as useEffectHook, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect as useEffectHook, useState } from 'react';
 
 interface YjsContextType {
   manager: YjsManager;

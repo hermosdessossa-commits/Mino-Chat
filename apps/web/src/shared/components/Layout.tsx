@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Search, MessageSquare, Settings, Plus, X, Menu, ArrowLeft, MoreVertical, Video, Phone, Info } from 'lucide-react';
+import { Search, MessageSquare, Plus, X, Menu } from 'lucide-react';
 import { ConversationList } from '@/features/conversations/ConversationList';
 import { ConversationListSkeleton } from '@/features/conversations/ConversationListSkeleton';
 import { useConversations } from '@/features/conversations/hooks/useConversations';
@@ -9,10 +9,7 @@ import { UserMenu } from './Dropdown';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Input } from './Input';
 import { Button } from './Button';
-import { Avatar } from './Avatar';
-import { Dropdown } from './Dropdown';
 import { cn } from '@mino-chat/shared/utils';
-import { formatRelativeTime } from '@mino-chat/shared/utils';
 
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { user } = useAuth();
@@ -63,7 +60,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
         <CreateConversationButton onClick={() => setShowCreate(true)} />
         <div className="mt-3 flex items-center gap-3 px-2">
           <UserMenu user={{ username: user?.username || '', email: user?.email || '', avatarUrl: user?.avatarUrl || null }} 
-            onProfile={() => {}} onSettings={() => {}} onLogout={() => {}} />
+            onProfile={() => undefined} onSettings={() => undefined} onLogout={() => undefined} />
         </div>
       </div>
     </aside>
@@ -123,7 +120,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
           <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400 hidden sm:block">Mino-Chat</h1>
         </div>
         <div className="flex items-center gap-2">
-          <UserMenu user={{ username: user?.username || '', email: user?.email || '', avatarUrl: user?.avatarUrl || null }} onProfile={() => {}} onSettings={() => {}} onLogout={() => {}} />
+          <UserMenu user={{ username: user?.username || '', email: user?.email || '', avatarUrl: user?.avatarUrl || null }} onProfile={() => undefined} onSettings={() => undefined} onLogout={() => undefined} />
         </div>
       </div>
     </header>
@@ -136,7 +133,7 @@ export function ChatArea({ children }: { children: React.ReactNode }) {
 
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
+  const _location = useLocation();
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950 flex">

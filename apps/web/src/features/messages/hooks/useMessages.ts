@@ -4,7 +4,13 @@ import { api } from '@/lib/api';
 export function useMessages(conversationId: string) {
   return useInfiniteQuery({
     queryKey: ['messages', conversationId],
-    queryFn: ({ pageParam }) => api.getMessages(conversationId, pageParam?.cursor, 50, pageParam?.direction),
+    queryFn: ({ pageParam }) =>
+      api.getMessages(
+        conversationId,
+        (pageParam as { cursor?: string; direction?: 'before' | 'after' })?.cursor,
+        50,
+        (pageParam as { direction?: 'before' | 'after' })?.direction
+      ),
     getNextPageParam: (lastPage) => lastPage.nextCursor ? { cursor: lastPage.nextCursor, direction: 'before' as const } : undefined,
     initialPageParam: { direction: 'before' as const },
     enabled: !!conversationId,
@@ -36,7 +42,7 @@ export function useEditMessage() {
   return useMutation({
     mutationFn: ({ id, content }: { id: string; content: string }) =>
       api.editMessage(id, content),
-    onSuccess: (_, { id }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
   });
@@ -46,7 +52,7 @@ export function useDeleteMessage() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteMessage(id),
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
@@ -64,7 +70,7 @@ export function useAddReaction() {
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
       api.addReaction(messageId, emoji),
-    onSuccess: (_, { messageId }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
   });
@@ -75,7 +81,7 @@ export function useRemoveReaction() {
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
       api.removeReaction(messageId, emoji),
-    onSuccess: (_, { messageId }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
   });

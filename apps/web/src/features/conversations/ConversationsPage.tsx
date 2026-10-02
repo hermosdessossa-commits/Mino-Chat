@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar, Header, ChatArea } from '@/shared/components/Layout';
-import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useLocation } from 'react-router-dom';
 
 export function ConversationsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _location = useLocation();
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-950 flex">

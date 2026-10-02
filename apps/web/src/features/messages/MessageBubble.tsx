@@ -1,7 +1,7 @@
 import { formatRelativeTime } from '@mino-chat/shared/utils';
 import { Avatar } from '@/shared/components/Avatar';
 import { cn } from '@mino-chat/shared/utils';
-import { Image, FileText, MessageSquare, Edit2, Trash2, Copy, Reply, Heart, ThumbsUp, Download } from 'lucide-react';
+import { FileText, Reply, Heart, Download } from 'lucide-react';
 
 interface Attachment {
   id: string;
@@ -11,7 +11,7 @@ interface Attachment {
   thumbnail: string | null;
   width: number | null;
   height: number | null;
-  size: number;
+  size?: number;
 }
 
 interface MessageBubbleProps {
@@ -20,28 +20,26 @@ interface MessageBubbleProps {
     content: string;
     type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
     createdAt: string;
-    sender: { id: string; username: string; avatarUrl: string | null };
+    sender?: { id: string; username: string; avatarUrl: string | null };
     attachments?: Attachment[];
-    reactions?: Array<{ emoji: string; count: number; userReacted: boolean }>;
-    replyTo?: { content: string; sender: { username: string } };
-    editedAt?: string;
+    reactions?: Array<{ emoji: string; count?: number; userReacted?: boolean }>;
+    replyTo?: { content: string; sender?: { username?: string } };
+    editedAt?: string | null;
   };
   isOwn: boolean;
 }
 
 export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
-  const isImage = message.attachments?.some(a => a.mimeType.startsWith('image/'));
-  const isFile = message.attachments?.some(a => !a.mimeType.startsWith('image/'));
 
   return (
     <div className={cn('flex gap-2 max-w-[70%]', isOwn ? 'ml-auto' : 'mr-auto')}>
       {!isOwn && (
-        <Avatar src={message.sender.avatarUrl} name={message.sender.username} size="sm" />
+        <Avatar src={message.sender?.avatarUrl} name={message.sender?.username} size="sm" />
       )}
       <div className={cn('flex flex-col gap-1', isOwn ? 'items-end' : 'items-start')}>
         {!isOwn && (
           <span className="text-xs text-surface-500 dark:text-surface-400 px-1">
-            {message.sender.username}
+            {message.sender?.username}
           </span>
         )}
         <div className={cn(
@@ -55,7 +53,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             <div className="mb-1.5 px-3 py-1.5 bg-white/10 dark:bg-surface-900/50 rounded-lg border border-white/10 dark:border-surface-700/50">
               <div className="flex items-center gap-2 text-xs">
                 <Reply className="h-3 w-3 opacity-70" />
-                <span className="font-medium opacity-80">{message.replyTo.sender.username}</span>
+                <span className="font-medium opacity-80">{message.replyTo.sender?.username}</span>
               </div>
               <div className="text-sm truncate opacity-80">{message.replyTo.content}</div>
             </div>
@@ -83,7 +81,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
               <FileText className="h-8 w-8 opacity-80" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{message.attachments[0].filename}</p>
-                <p className="text-xs opacity-70">{formatFileSize(message.attachments[0].size)}</p>
+                <p className="text-xs opacity-70">{formatFileSize(message.attachments[0]!.size ?? 0)}</p>
               </div>
               <a href={message.attachments[0].url} target="_blank" rel="noopener noreferrer" className="p-1 hover:bg-white/10 dark:hover:bg-surface-700/50 rounded">
                 <Download className="h-4 w-4" />
@@ -133,7 +131,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
                   )}
                 >
                   <span>{r.emoji}</span>
-                  {r.count > 1 && <span>{r.count}</span>}
+                  {(r.count ?? 0) > 1 && <span>{r.count}</span>}
                 </button>
               ))}
               <button className="px-2 py-0.5 rounded-full text-xs text-surface-500 hover:text-surface-700 dark:hover:text-surface-300">

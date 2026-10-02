@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '../../shared/components/Button';
 import { Input } from '../../shared/components/Input';
@@ -20,8 +20,8 @@ export function LoginForm({ onSwitchToRegister, onSwitchToMagicLink }: { onSwitc
     try {
       await login(email, password, rememberMe);
       navigate('/conversations');
-    } catch (err: any) {
-      setError(err.message || 'Identifiants invalides');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Identifiants invalides');
     }
   };
 
@@ -114,8 +114,8 @@ export function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void 
     try {
       await register({ email, username, password: password || undefined });
       navigate('/conversations');
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'inscription');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Erreur lors de l\'inscription');
     }
   };
 
@@ -235,8 +235,8 @@ function MagicLinkForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
       await requestMagicLink(email);
       setSent(true);
       startCountdown();
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'envoi');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Erreur lors de l\'envoi');
     }
   };
 

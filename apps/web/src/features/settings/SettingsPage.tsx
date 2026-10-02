@@ -4,7 +4,7 @@ import { Input } from '../../shared/components/Input';
 import { Avatar } from '../../shared/components/Avatar';
 
 export function SettingsPage() {
-  const { user, updateProfile, status } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [username, setUsername] = useState(user?.username || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
   const [saved, setSaved] = useState(false);
@@ -123,7 +123,7 @@ function ThemeSelector() {
       {['light', 'dark', 'system'].map((t) => (
         <button
           key={t}
-          onClick={() => setTheme(t as any)}
+          onClick={() => setTheme(t as "light" | "dark" | "system")}
           className={`p-4 rounded-xl border-2 text-center text-sm font-medium transition-all ${
             theme === t
               ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'

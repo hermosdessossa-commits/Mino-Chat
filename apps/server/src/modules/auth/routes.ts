@@ -38,19 +38,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/register',
     {
-      schema: {
-        body: registerBodySchema,
-        response: {
-          201: {
-            type: 'object',
-            properties: {
-              user: { type: 'object' },
-              accessToken: { type: 'string' },
-              refreshToken: { type: 'string' },
-            },
-          },
-        },
-      },
       preHandler: [validateBody(registerBodySchema)],
     },
     async (request, reply) => {
@@ -63,13 +50,11 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/login',
     {
-      schema: {
-        body: loginBodySchema,
-      },
       preHandler: [validateBody(loginBodySchema)],
     },
     async (request, reply) => {
-      await login(request.validatedBody as LoginBody, reply);
+      const result = await login(request.validatedBody as LoginBody, reply);
+      reply.send(result);
     },
   );
 
@@ -77,9 +62,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/magic-link/request',
     {
-      schema: {
-        body: magicLinkRequestBodySchema,
-      },
       preHandler: [validateBody(magicLinkRequestBodySchema)],
     },
     async (request, reply) => {
@@ -93,9 +75,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get(
     '/magic-link/verify',
     {
-      schema: {
-        querystring: magicLinkVerifyQuerySchema,
-      },
       preHandler: [validateQuery(magicLinkVerifyQuerySchema)],
     },
     async (request, reply) => {
@@ -109,9 +88,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/refresh',
     {
-      schema: {
-        body: refreshTokenBodySchema,
-      },
       preHandler: [validateBody(refreshTokenBodySchema)],
     },
     async (request, reply) => {
@@ -158,9 +134,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch(
     '/me',
     {
-      schema: {
-        body: updateProfileBodySchema,
-      },
       preHandler: [validateBody(updateProfileBodySchema)],
     },
     async (request, reply) => {
