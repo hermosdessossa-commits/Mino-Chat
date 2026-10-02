@@ -21,24 +21,28 @@ const socketPlugin: FastifyPluginAsync = async (fastify) => {
   let pubClient: Redis | undefined;
   let subClient: Redis | undefined;
 
-  try {
-    pubClient = new Redis(env.REDIS_URL, { lazyConnect: true });
-    subClient = new Redis(env.REDIS_URL, { lazyConnect: true });
+  if (env.REDIS_URL) {
+    try {
+      pubClient = new Redis(env.REDIS_URL, { lazyConnect: true });
+      subClient = new Redis(env.REDIS_URL, { lazyConnect: true });
 
-    pubClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis pub client error'));
-    subClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis sub client error'));
+      pubClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis pub client error'));
+      subClient.on('error', (err: Error) => fastify.log.error({ err }, 'Redis sub client error'));
 
-    await Promise.all([pubClient.connect(), subClient.connect()]);
-    adapter = createAdapter(pubClient, subClient);
-    fastify.log.info('Socket.io Redis adapter connected');
-  } catch (err) {
-    fastify.log.warn(
-      { err },
-      'Redis unavailable — Socket.io running without cross-instance adapter',
-    );
-    pubClient = undefined;
-    subClient = undefined;
-    adapter = undefined;
+      await Promise.all([pubClient.connect(), subClient.connect()]);
+      adapter = createAdapter(pubClient, subClient);
+      fastify.log.info('Socket.io Redis adapter connected');
+    } catch (err) {
+      fastify.log.warn(
+        { err },
+        'Redis unavailable — Socket.io running without cross-instance adapter',
+      );
+      pubClient = undefined;
+      subClient = undefined;
+      adapter = undefined;
+    }
+  } else {
+    fastify.log.warn('REDIS_URL not set — Socket.io running without cross-instance adapter');
   }
 
   // Initialize Socket.io

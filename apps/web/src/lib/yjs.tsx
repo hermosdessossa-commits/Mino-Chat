@@ -79,8 +79,12 @@ export class YjsManager {
       this.websocketProvider.destroy();
     }
 
+    const wsBase =
+      env.VITE_WS_URL ||
+      `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
+
     this.websocketProvider = new WebsocketProvider(
-      `${env.VITE_WS_URL}/yjs`,
+      `${wsBase}/yjs`,
       'mino-chat',
       this.doc,
       { connect: true, params: { token } }

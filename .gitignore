@@ -53,3 +53,6 @@ apps/web/test-results
 
 # Render
 .render
+
+# Vercel
+.vercel

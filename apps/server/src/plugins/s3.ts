@@ -8,11 +8,17 @@ import { env } from '../config/env';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    s3: Client;
+    s3: Client | null;
   }
 }
 
 const s3Plugin: FastifyPluginAsync = async (fastify) => {
+  if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY || !env.S3_BUCKET) {
+    fastify.log.warn('S3 not configured — uploads disabled');
+    fastify.decorate('s3', null);
+    return;
+  }
+
   const s3Client = new Client({
     endPoint: new URL(env.S3_ENDPOINT).hostname,
     port:

@@ -37,5 +37,13 @@
       "cache": false
     }
   },
-  "globalEnv": ["DATABASE_URL", "JWT_SECRET", "NODE_ENV"]
+  "globalEnv": [
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "NODE_ENV",
+    "VITE_API_URL",
+    "VITE_WS_URL",
+    "VITE_APP_NAME",
+    "VITE_APP_VERSION"
+  ]
 }

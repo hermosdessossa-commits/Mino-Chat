@@ -19,19 +19,19 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
   JWT_REFRESH_EXPIRY_REMEMBER: z.string().default('30d'),
 
-  // Redis
-  REDIS_URL: z.string().url(),
+  // Redis (optional — Socket.io runs without cross-instance adapter if unset)
+  REDIS_URL: z.string().url().optional(),
 
   // CORS
   CORS_ORIGIN: z.string().url(),
 
-  // Storage (S3-compatible)
-  S3_ENDPOINT: z.string().url(),
-  S3_ACCESS_KEY: z.string().min(1),
-  S3_SECRET_KEY: z.string().min(1),
-  S3_BUCKET: z.string().min(1),
+  // Storage (S3-compatible, optional — uploads disabled if unset)
+  S3_ENDPOINT: z.string().url().optional(),
+  S3_ACCESS_KEY: z.string().min(1).optional(),
+  S3_SECRET_KEY: z.string().min(1).optional(),
+  S3_BUCKET: z.string().min(1).optional(),
   S3_REGION: z.string().default('auto'),
-  S3_PUBLIC_URL: z.string().url(),
+  S3_PUBLIC_URL: z.string().url().optional(),
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
