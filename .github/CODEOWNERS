@@ -1,0 +1,19 @@
+# Global owners
+* @your-username
+
+# Backend
+/apps/server/ @backend-team
+/packages/db/ @backend-team
+/packages/shared/ @backend-team
+
+# Frontend
+/apps/web/ @frontend-team
+
+# Infrastructure
+/docker-compose.yml @devops-team
+/.github/ @devops-team
+/render.yaml @devops-team
+
+# Documentation
+/README.md @docs-team
+/docs/ @docs-team
