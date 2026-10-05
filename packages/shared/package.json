@@ -33,11 +33,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "zod": "^3.22.4",
-    "date-fns": "^3.3.1",
+    "zod": "^4.6.5",
+    "date-fns": "^4.4.0",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.1",
-    "@paralleldrive/cuid2": "^2.2.2"
+    "tailwind-merge": "^3.7.0",
+    "@paralleldrive/cuid2": "^3.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",
